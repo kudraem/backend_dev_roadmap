@@ -83,7 +83,7 @@ Telegram
 HTTP запросов инициировать отправку сообщения в Telegram
 
 #### Спринты
-1. Спринт 1
+1. [Спринт 1](https://github.com/kudraem/backend_dev_roadmap/tree/main/projects/telegram_notification_service/sprint_1)
     1. Интернет, HTTP, API, requests
     1. Python окружение: пакеты, индексы и pip, виртуальные окружения, Flake8
 
