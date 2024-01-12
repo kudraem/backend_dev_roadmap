@@ -29,4 +29,7 @@ flowchart LR
 Таким образом, интернет предоставляет нам средство обмена сообщениями между нашими 
 сервисами, поэтому нам необходимо сделать обзор того, как он устроен. 
 
+### Задачи
+1. [Задача 1. Todo](https://github.com/kudraem/backend_dev_roadmap/tree/main/projects/telegram_notification_service/sprint_1/tasks/task_1)
+
 ## Python окружение: пакеты, индексы и pip, виртуальные окружения, Flake8
