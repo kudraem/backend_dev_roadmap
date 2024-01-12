@@ -32,5 +32,6 @@ flowchart LR
 ### Задачи
 1. [Задача 1. Todo](https://github.com/kudraem/backend_dev_roadmap/tree/main/projects/telegram_notification_service/sprint_1/tasks/task_1)
 1. [Задача 2. Мониторинг доступности сайтов](https://github.com/kudraem/backend_dev_roadmap/tree/main/projects/telegram_notification_service/sprint_1/tasks/task_2)
+1. [Задача 3. Нужно больше места](https://github.com/kudraem/backend_dev_roadmap/tree/main/projects/telegram_notification_service/sprint_1/tasks/task_3)
 
 ## Python окружение: пакеты, индексы и pip, виртуальные окружения, Flake8
