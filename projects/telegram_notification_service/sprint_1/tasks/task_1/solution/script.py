@@ -50,6 +50,25 @@ class Todo(requests.Session):
             except requests.JSONDecodeError:
                 return 'Incoming JSON is invalid'
 
+    def patch(self, url='https://dummyjson.com/todos', request_body={}):
+        try:
+            response = super().patch(url, json=request_body,
+                                     headers=self.headers)
+            response.raise_for_status()
+        except requests.TooManyRedirects:
+            return 'Sorry, too many redirects'
+        except requests.HTTPError as err:
+            return f'HTTPError is occured, and it is {err}'
+        except requests.Timeout:
+            return 'Timeout error. Try again later.'
+        except requests.ConnectionError:
+            return 'Connection is lost, try again later.'
+        else:
+            try:
+                return response.json()
+            except requests.JSONDecodeError:
+                return 'Incoming JSON is invalid'
+
     def list(self, delimiter=5, step=0):
         """
         list(self, delimiter=5, step=0)
@@ -97,7 +116,8 @@ class Todo(requests.Session):
         Метод позволяет добавить свое дело в общий список.
         В качестве входных параметров требует:
         1) event - текстовое описание самого дела;
-        2) status - статус завершенности (True - завершено, False - не завершено);
+        2) status - статус завершенности:
+                    (True - завершено, False - не завершено);
         3) user_id - ID пользователя
         Значения по умолчанию: 'To do nothing', False, 1.
         """
@@ -108,6 +128,21 @@ class Todo(requests.Session):
             'userId': user_id
         }
         return self.post(url, request_body)
+
+    def update(self, task_id, status=True):
+        """
+        update(self, task_id, status=True)
+
+        Метод позволяет обновить статус дела по его id.
+        В качестве входных параметров требует:
+        1) task_id - id дела
+        2) status - статус завершенности дела (по-умолчанию - True)
+        """
+        url = f'https://dummyjson.com/todos/{task_id}'
+        request_body = {
+            'completed': status,
+        }
+        return self.patch(url, request_body)
 
 
 new = Todo()
