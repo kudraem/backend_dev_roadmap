@@ -52,48 +52,59 @@ class Todo(requests.Session):
 
     def list(self, delimiter=5, step=0):
         """
-        Метод позволяет пропустить skip элементов в списке дел
+        list(self, delimiter=5, step=0)
+
+        Метод позволяет пропустить step элементов в списке дел
         и получить следующие delimiter дел.
-        Значение skip по-умолчанию равно 0.
+        Значение step по-умолчанию равно 0.
         Значение delimiter по-умолчанию - 5.
         """
         return self.get(delimiter=delimiter, step=step)['todos']
 
     def id(self, event_id):
-        """Метод позволяет получить из списка конкретное дело
-        с заданным пользователем id.
+        """
+        id(self, event_id)
+
+        Метод позволяет получить из списка конкретное дело
+        с заданным пользователем event_id.
         """
         return self.get(f'{self.url}/{event_id}')
 
     def random(self):
         """
+        random(self)
+
         Метод позволяет получить произвольное дело из списка
         """
         return self.get(f'{self.url}/random')
 
-    def user(self, user_id, delimiter=0, step=0):
+    def user(self, user_id):
         """
+        user(self, user_id, delimiter=0, step=0)
+
         Метод позволяет получить список дел конкретного пользователя
-        по его id.
+        по его user_id.
         Метод позволяет также выводить ограниченное количество дел
         (параметр delimiter), а также пропускать первые step дел
         пользователя
         """
         return self.get(f'{self.url}/user/{user_id}')['todos']
 
-    def add(self, event='To do nothing', completion=False, user_id=1):
+    def add(self, event='To do nothing', status=False, user_id=1):
         """
+        add(self, event='To do nothing', status=False, user_id=1)
+
         Метод позволяет добавить свое дело в общий список.
         В качестве входных параметров требует:
-        1) Текстовое описание самого дела;
-        2) Статус завершенности (True - завершено, False = не завершено;
-        3) ID пользователя
-        Значения по умолчанию: 'To do nothing', False, 0.
+        1) event - текстовое описание самого дела;
+        2) status - статус завершенности (True - завершено, False - не завершено);
+        3) user_id - ID пользователя
+        Значения по умолчанию: 'To do nothing', False, 1.
         """
         url = 'https://dummyjson.com/todos/add'
         request_body = {
             'todo': event,
-            'completed': completion,
+            'completed': status,
             'userId': user_id
         }
         return self.post(url, request_body)
@@ -112,4 +123,6 @@ response = new.user(5)
 assert response[0]['userId'] == 5
 response = new.add()
 assert response['id'] == 151
+response = new.update(1, False)
+assert response['completed'] is False
 print('Tests passed')
