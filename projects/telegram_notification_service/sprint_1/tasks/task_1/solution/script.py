@@ -25,8 +25,10 @@ class Todo(requests.Session):
             return 'Sorry, too many redirects'
         except requests.HTTPError as err:
             return f'HTTPError is occured, and it is {err}'
+        except requests.Timeout:
+            return 'Timeout error. Try again later.'
         except requests.ConnectionError:
-            return f'Connection is lost, try again later.'
+            return 'Connection is lost, try again later.'
         else:
             try:
                 self.todo_list = response.json()
