@@ -10,16 +10,18 @@ class Todo(requests.Session):
         self.limit = None
         self.skip = 0
         self.params = {'limit': self.limit, 'skip': self.skip}
-        self.headers = {'User-Agent': 'Python-Study-App/1.0.0', 'Content-Type': 'application/json'}
+        self.headers = {'User-Agent': 'Python-Study-App/1.0.0',
+                        'Content-Type': 'application/json'}
 
-    def get(self, delimiter = 5):
+    def get(self, delimiter=5):
         """
         Метод возвращает указанное в качестве аргумента количество дел
         (значение по умолчанию - 5)
         """
         self.params.update(limit=delimiter)
         try:
-            response = super().get(self.url, params=self.params, headers=self.headers)
+            response = super().get(self.url, params=self.params,
+                                   headers=self.headers)
             response.raise_for_status()
         except requests.TooManyRedirects:
             return 'Sorry, too many redirects'
@@ -32,7 +34,7 @@ class Todo(requests.Session):
         else:
             try:
                 self.todo_list = response.json()
-                return self.todo_list
+                return self.todo_list['todos']
             except requests.JSONDecodeError:
                 return 'Incoming JSON is invalid'
 
@@ -69,7 +71,12 @@ class Todo(requests.Session):
             except requests.JSONDecodeError:
                 return 'Incoming JSON is invalid'
 
+
 new = Todo()
-#print(new.get(10))
-#print(new.next(5, 10))
-print(new.id(5))
+response = new.get(10)
+assert response[1]['id'] == 2
+response = new.next(5, 10)
+assert response[6]['id'] == 12
+response = new.id(5)
+assert response['todo'] == "Solve a Rubik's cube"
+print('Tests passed')
