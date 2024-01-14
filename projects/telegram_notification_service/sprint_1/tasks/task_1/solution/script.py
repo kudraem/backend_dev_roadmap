@@ -6,16 +6,35 @@ class Todo(requests.Session):
         super().__init__()
         self.max_redirects = 5
         self.url = 'https://dummyjson.com/todos'
-        self.limit = None
-        self.skip = 0
-        self.params = {'limit': self.limit, 'skip': self.skip}
         self.headers = {'User-Agent': 'Python-Study-App/1.0.0',
                         'Content-Type': 'application/json'}
 
-    def get(self, url='https://dummyjson.com/todos'):
+    def get(self, url='https://dummyjson.com/todos',
+            delimiter=None, step=None):
+        params = {'limit': delimiter, 'skip': step}
         try:
-            response = super().get(url, params=self.params,
+            response = super().get(url, params=params,
                                    headers=self.headers)
+            response.raise_for_status()
+        except requests.TooManyRedirects:
+            return 'Sorry, too many redirects'
+        except requests.HTTPError as err:
+            return f'HTTPError is occured, and it is {err}'
+        except requests.Timeout:
+            return 'Timeout error. Try again later.'
+        except requests.ConnectionError:
+            return 'Connection is lost, try again later.'
+        else:
+            try:
+                return response.json()
+            except requests.JSONDecodeError:
+                return 'Incoming JSON is invalid'
+
+    def post(self, url='https://dummyjson.com/todos',
+             request_body={}):
+        try:
+            response = super().post(url, json=request_body,
+                                    headers=self.headers)
             response.raise_for_status()
         except requests.TooManyRedirects:
             return 'Sorry, too many redirects'
@@ -38,8 +57,7 @@ class Todo(requests.Session):
         Значение skip по-умолчанию равно 0.
         Значение delimiter по-умолчанию - 5.
         """
-        self.params.update(limit=delimiter, skip=step)
-        return self.get()['todos']
+        return self.get(delimiter=delimiter, step=step)['todos']
 
     def id(self, event_id):
         """Метод позволяет получить из списка конкретное дело
@@ -61,12 +79,9 @@ class Todo(requests.Session):
         (параметр delimiter), а также пропускать первые step дел
         пользователя
         """
-        self.params.update(limit=delimiter, skip=step)
         return self.get(f'{self.url}/user/{user_id}')['todos']
 
     def add(self, event='To do nothing', completion=False, user_id=1):
-        url = 'https://dummyjson.com/todos/add'
-        params = {'limit': None, 'skip': None}
         """
         Метод позволяет добавить свое дело в общий список.
         В качестве входных параметров требует:
@@ -75,28 +90,13 @@ class Todo(requests.Session):
         3) ID пользователя
         Значения по умолчанию: 'To do nothing', False, 0.
         """
+        url = 'https://dummyjson.com/todos/add'
         request_body = {
             'todo': event,
             'completed': completion,
             'userId': user_id
         }
-        try:
-            response = super().post(url, json=request_body,
-                                    headers=self.headers, params=params)
-            response.raise_for_status()
-        except requests.TooManyRedirects:
-            return 'Sorry, too many redirects'
-        except requests.HTTPError as err:
-            return f'HTTPError is occured, and it is {err}'
-        except requests.Timeout:
-            return 'Timeout error. Try again later.'
-        except requests.ConnectionError:
-            return 'Connection is lost, try again later.'
-        else:
-            try:
-                return response.json()
-            except requests.JSONDecodeError:
-                return 'Incoming JSON is invalid'
+        return self.post(url, request_body)
 
 
 new = Todo()
