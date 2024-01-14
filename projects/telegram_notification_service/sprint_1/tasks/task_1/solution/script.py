@@ -47,8 +47,29 @@ class Todo(requests.Session):
         self.params.update(skip=self.skip)
         return self.get(delimiter)
 
+    def id(self, event_id):
+        """Метод позволяет получить из списка конкретное дело
+        с заданным пользователем id.
+        """
+        url = f'{self.url}/{event_id}'
+        try:
+            response = super().get(url, headers=self.headers)
+            response.raise_for_status()
+        except requests.TooManyRedirects:
+            return 'Sorry, too many redirects'
+        except requests.HTTPError as err:
+            return f'HTTPError is occured, and it is {err}'
+        except requests.Timeout:
+            return 'Timeout error. Try again later.'
+        except requests.ConnectionError:
+            return 'Connection is lost, try again later.'
+        else:
+            try:
+                return response.json()
+            except requests.JSONDecodeError:
+                return 'Incoming JSON is invalid'
 
 new = Todo()
-print(new.get(10))
-print(new.next(5, 10))
-print(new.skip)
+#print(new.get(10))
+#print(new.next(5, 10))
+print(new.id(5))
