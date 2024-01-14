@@ -53,6 +53,17 @@ class Todo(requests.Session):
         """
         return self.get(f'{self.url}/random')
 
+    def user(self, user_id, delimiter=0, step=0):
+        """
+        Метод позволяет получить список дел конкретного пользователя
+        по его id.
+        Метод позволяет также выводить ограниченное количество дел
+        (параметр delimiter), а также пропускать первые step дел
+        пользователя
+        """
+        self.params.update(limit=delimiter, skip=step)
+        return self.get(f'{self.url}/user/{user_id}')['todos']
+
 
 new = Todo()
 response = new.list(10)
@@ -63,4 +74,6 @@ response = new.id(5)
 assert response['todo'] == "Solve a Rubik's cube"
 response = new.random()
 assert response['id'] > 0
+response = new.user(5)
+assert response[0]['userId'] == 5
 print('Tests passed')
