@@ -47,6 +47,12 @@ class Todo(requests.Session):
         """
         return self.get(f'{self.url}/{event_id}')
 
+    def random(self):
+        """
+        Метод позволяет получить произвольное дело из списка
+        """
+        return self.get(f'{self.url}/random')
+
 
 new = Todo()
 response = new.list(10)
@@ -55,4 +61,6 @@ response = new.list(10, 5)
 assert response[6]['id'] == 12
 response = new.id(5)
 assert response['todo'] == "Solve a Rubik's cube"
+response = new.random()
+assert response['id'] > 0
 print('Tests passed')
