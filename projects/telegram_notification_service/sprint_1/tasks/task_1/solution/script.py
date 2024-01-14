@@ -64,6 +64,40 @@ class Todo(requests.Session):
         self.params.update(limit=delimiter, skip=step)
         return self.get(f'{self.url}/user/{user_id}')['todos']
 
+    def add(self, event='To do nothing', completion=False, user_id=1):
+        url = 'https://dummyjson.com/todos/add'
+        params = {'limit': None, 'skip': None}
+        """
+        Метод позволяет добавить свое дело в общий список.
+        В качестве входных параметров требует:
+        1) Текстовое описание самого дела;
+        2) Статус завершенности (True - завершено, False = не завершено;
+        3) ID пользователя
+        Значения по умолчанию: 'To do nothing', False, 0.
+        """
+        request_body = {
+            'todo': event,
+            'completed': completion,
+            'userId': user_id
+        }
+        try:
+            response = super().post(url, json=request_body,
+                                    headers=self.headers, params=params)
+            response.raise_for_status()
+        except requests.TooManyRedirects:
+            return 'Sorry, too many redirects'
+        except requests.HTTPError as err:
+            return f'HTTPError is occured, and it is {err}'
+        except requests.Timeout:
+            return 'Timeout error. Try again later.'
+        except requests.ConnectionError:
+            return 'Connection is lost, try again later.'
+        else:
+            try:
+                return response.json()
+            except requests.JSONDecodeError:
+                return 'Incoming JSON is invalid'
+
 
 new = Todo()
 response = new.list(10)
@@ -76,4 +110,6 @@ response = new.random()
 assert response['id'] > 0
 response = new.user(5)
 assert response[0]['userId'] == 5
+response = new.add()
+assert response['id'] == 151
 print('Tests passed')
