@@ -93,7 +93,7 @@ class Todo(requests.Session):
 
         Метод позволяет пропустить step элементов в списке дел
         и получить следующие delimiter дел.
-        Значение step по-умолчанию равно 0.
+        Значение step по-умолчанию - 0.
         Значение delimiter по-умолчанию - 5.
         """
         return self.get(delimiter=delimiter, step=step)['todos']
@@ -115,7 +115,7 @@ class Todo(requests.Session):
         """
         return self.get(f'{self.url}/random')
 
-    def user(self, user_id):
+    def user(self, user_id, delimiter=0, step=0):
         """
         user(self, user_id, delimiter=0, step=0)
 
@@ -125,7 +125,8 @@ class Todo(requests.Session):
         (параметр delimiter), а также пропускать первые step дел
         пользователя
         """
-        return self.get(f'{self.url}/user/{user_id}')['todos']
+        return self.get(f'{self.url}/user/{user_id}',
+                        delimiter=delimiter, step=step)['todos']
 
     def add(self, event='To do nothing', status=False, user_id=1):
         """
@@ -187,5 +188,5 @@ assert response['id'] == 151
 response = new.update(1, False)
 assert response['completed'] is False
 response = new.remove(1)
-assert 'deletedOn' in response
+assert response['isDeleted'] is True
 print('Tests passed')
