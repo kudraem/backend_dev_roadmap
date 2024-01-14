@@ -69,6 +69,24 @@ class Todo(requests.Session):
             except requests.JSONDecodeError:
                 return 'Incoming JSON is invalid'
 
+    def delete(self, url='https://dummyjson.com/todos'):
+        try:
+            response = super().delete(url, headers=self.headers)
+            response.raise_for_status()
+        except requests.TooManyRedirects:
+            return 'Sorry, too many redirects'
+        except requests.HTTPError as err:
+            return f'HTTPError is occured, and it is {err}'
+        except requests.Timeout:
+            return 'Timeout error. Try again later.'
+        except requests.ConnectionError:
+            return 'Connection is lost, try again later.'
+        else:
+            try:
+                return response.json()
+            except requests.JSONDecodeError:
+                return 'Incoming JSON is invalid'
+
     def list(self, delimiter=5, step=0):
         """
         list(self, delimiter=5, step=0)
@@ -144,6 +162,14 @@ class Todo(requests.Session):
         }
         return self.patch(url, request_body)
 
+    def remove(self, task_id):
+        """
+        remove(self, task_id)
+
+        Метод позволяет удалить дело по его task_id
+        """
+        return self.delete(f'{self.url}/{task_id}')
+
 
 new = Todo()
 response = new.list(10)
@@ -160,4 +186,6 @@ response = new.add()
 assert response['id'] == 151
 response = new.update(1, False)
 assert response['completed'] is False
+response = new.remove(1)
+assert 'deletedOn' in response
 print('Tests passed')
