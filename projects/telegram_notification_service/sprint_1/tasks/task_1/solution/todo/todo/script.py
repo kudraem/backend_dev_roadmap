@@ -99,6 +99,26 @@ class Todo:
                                          delimiter=delimiter, skip=skip)
         return todoes_dict.get('todos')
 
+    def add(self, event, user_id, status=False):
+        """
+        add(self, event, user_id, status=False)
+
+        Метод позволяет добавить свое дело в общий список.
+        В качестве входных параметров требует:
+        1) event - текстовое описание самого дела;
+        2) status - статус завершенности:
+                    (True - завершено, False - не завершено);
+        3) user_id - ID пользователя
+        Значение status по умолчанию: False
+        """
+        path = '/add'
+        request_body = {
+            'todo': event,
+            'completed': status,
+            'userId': user_id
+        }
+        return self.dummyjson.post(path=path, request_body=request_body)
+
 
 new = Todo()
 response = new.enlist(10)
@@ -111,4 +131,6 @@ response = new.random()
 assert response['id'] > 0
 response = new.user(5)
 assert response[0]['userId'] == 5
+response = new.add('Send another request to dummyjson.com', 31, False)
+assert response['id'] == 151
 print('Tests passed')
