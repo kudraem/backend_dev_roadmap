@@ -75,6 +75,15 @@ class Todo:
         path = f'/{event_id}'
         return self.dummyjson.get(path=path)
 
+    def random(self):
+        """
+        random(self)
+
+        Метод позволяет получить произвольное дело из списка
+        """
+        path = '/random'
+        return self.dummyjson.get(path=path)
+
 
 new = Todo()
 response = new.enlist(10)
@@ -83,4 +92,6 @@ response = new.enlist(10, 5)
 assert response[6]['id'] == 12
 response = new.id(5)
 assert response['todo'] == "Solve a Rubik's cube"
+response = new.random()
+assert response['id'] > 0
 print('Tests passed')
