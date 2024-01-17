@@ -28,8 +28,8 @@ class DummyJsonApi(requests.Session):
         self.headers = {'User-Agent': 'Python-Study-App/1.0.0',
                         'Content-Type': 'application/json'}
 
-    def get(self, path='/', delimiter=None, step=None):
-        params = {'limit': delimiter, 'skip': step}
+    def get(self, path='/', delimiter=None, skip=None):
+        params = {'limit': delimiter, 'skip': skip}
         return catch_exception(super().get(self.domain + path,
                                            params=params,
                                            headers=self.headers))
@@ -53,16 +53,16 @@ class Todo:
     def __init__(self):
         self.dummyjson = DummyJsonApi('https://dummyjson.com/todos')
 
-    def enlist(self, delimiter=5, step=0):
+    def enlist(self, delimiter=5, skip=0):
         """
-        list(self, delimiter=5, step=0)
+        list(self, delimiter=5, skip=0)
 
-        Метод позволяет пропустить step элементов в списке дел
+        Метод позволяет пропустить skip элементов в списке дел
         и получить следующие delimiter дел.
-        Значение step по-умолчанию - 0.
+        Значение skip по-умолчанию - 0.
         Значение delimiter по-умолчанию - 5.
         """
-        todoes_dict = self.dummyjson.get(delimiter=delimiter, step=step)
+        todoes_dict = self.dummyjson.get(delimiter=delimiter, skip=skip)
         return todoes_dict.get('todos')
 
     def id(self, event_id):
@@ -84,6 +84,21 @@ class Todo:
         path = '/random'
         return self.dummyjson.get(path=path)
 
+    def user(self, user_id, delimiter=0, skip=0):
+        """
+        user(self, user_id, delimiter=0, skip=0)
+
+        Метод позволяет получить список дел конкретного пользователя
+        по его user_id.
+        Метод позволяет также выводить ограниченное количество дел
+        (параметр delimiter), а также пропускать первые skip дел
+        пользователя
+        """
+        path = f'/user/{user_id}'
+        todoes_dict = self.dummyjson.get(path=path,
+                                         delimiter=delimiter, skip=skip)
+        return todoes_dict.get('todos')
+
 
 new = Todo()
 response = new.enlist(10)
@@ -94,4 +109,6 @@ response = new.id(5)
 assert response['todo'] == "Solve a Rubik's cube"
 response = new.random()
 assert response['id'] > 0
+response = new.user(5)
+assert response[0]['userId'] == 5
 print('Tests passed')
