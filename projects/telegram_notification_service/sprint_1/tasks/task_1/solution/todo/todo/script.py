@@ -1,23 +1,30 @@
 import requests
 
 
-def catch_exception(request):
+class DummyJsonException(BaseException):
+    def __init__(self, message):
+        self.message = message
+    def __str__(self):
+        return self.message
+
+
+def catch_exception(method, path, **kwargs):
     try:
-        response = request
+        response = requests.request(method, path, **kwargs)
         response.raise_for_status()
     except requests.TooManyRedirects:
-        raise Exception('Sorry, too many redirects')
+        raise DummyJsonException('Sorry, too many redirects')
     except requests.HTTPError as err:
-        raise Exception(f'HTTPError is occured, and it is {err}')
+        raise DummyJsonException(f'HTTPError is occured, and it is {err}')
     except requests.Timeout:
-        raise Exception('Timeout error. Try again later.')
+        raise DummyJsonException('Timeout error. Try again later.')
     except requests.ConnectionError:
-        raise Exception('Connection is lost, try again later.')
+        raise DummyJsonException('Connection is lost, try again later.')
     else:
         try:
             return response.json()
         except requests.JSONDecodeError:
-            raise Exception('Incoming JSON is invalid')
+            raise DummyJsonException('Incoming JSON is invalid')
 
 
 class DummyJsonApi(requests.Session):
@@ -30,23 +37,23 @@ class DummyJsonApi(requests.Session):
 
     def get(self, path='/', delimiter=None, skip=None):
         params = {'limit': delimiter, 'skip': skip}
-        return catch_exception(super().get(self.domain + path,
-                                           params=params,
-                                           headers=self.headers))
+        return catch_exception('get', (self.domain + path),
+                               params=params,
+                               headers=self.headers)
 
     def post(self, request_body, path='/'):
-        return catch_exception(super().post(self.domain + path,
-                                            json=request_body,
-                                            headers=self.headers))
+        return catch_exception('post', (self.domain + path),
+                               json=request_body,
+                               headers=self.headers)
 
     def patch(self, request_body, path='/'):
-        return catch_exception(super().patch(self.domain + path,
-                                             json=request_body,
-                                             headers=self.headers))
+        return catch_exception('patch', (self.domain + path),
+                               json=request_body,
+                               headers=self.headers)
 
     def delete(self, path='/'):
-        return catch_exception(super().delete(self.domain + path,
-                                              headers=self.headers))
+        return catch_exception('delete', (self.domain + path),
+                               headers=self.headers)
 
 
 class Todo:
