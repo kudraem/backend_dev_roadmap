@@ -4,11 +4,12 @@ import requests
 class DummyJsonException(BaseException):
     def __init__(self, message):
         self.message = message
+
     def __str__(self):
         return self.message
 
 
-def catch_exception(method, path, **kwargs):
+def make_request(method, path, **kwargs):
     try:
         response = requests.request(method, path, **kwargs)
         response.raise_for_status()
@@ -34,42 +35,40 @@ class DummyJsonApi(requests.Session):
         self.domain = domain
         self.headers = {'User-Agent': 'Python-Study-App/1.0.0',
                         'Content-Type': 'application/json'}
+        self.timeout = 5.0
 
-    def get(self, path='/', delimiter=None, skip=None):
-        params = {'limit': delimiter, 'skip': skip}
-        return catch_exception('get', (self.domain + path),
-                               params=params,
-                               headers=self.headers)
+    def get(self, query_params=None, path=''):
+        return make_request('get', (self.domain + path),
+                            params=query_params, headers=self.headers,
+                            timeout=self.timeout)
 
-    def post(self, request_body, path='/'):
-        return catch_exception('post', (self.domain + path),
-                               json=request_body,
-                               headers=self.headers)
+    def post(self, request_body, path=''):
+        return make_request('post', (self.domain + path),
+                            json=request_body,
+                            headers=self.headers, timeout=self.timeout)
 
-    def patch(self, request_body, path='/'):
-        return catch_exception('patch', (self.domain + path),
-                               json=request_body,
-                               headers=self.headers)
+    def patch(self, request_body, path=''):
+        return make_request('patch', (self.domain + path),
+                            json=request_body,
+                            headers=self.headers, timeout=self.timeout)
 
-    def delete(self, path='/'):
-        return catch_exception('delete', (self.domain + path),
-                               headers=self.headers)
+    def delete(self, path=''):
+        return make_request('delete', (self.domain + path),
+                            headers=self.headers, timeout=self.timeout)
 
 
 class Todo:
-    def __init__(self):
-        self.dummyjson = DummyJsonApi('https://dummyjson.com/todos')
+    def __init__(self, domain):
+        self.dummyjson = DummyJsonApi(domain)
 
-    def enlist(self, delimiter=5, skip=0):
+    def enlist(self, query_params):
         """
-        list(self, delimiter=5, skip=0)
+        enlist(self, query_params)
 
         Метод позволяет пропустить skip элементов в списке дел
-        и получить следующие delimiter дел.
-        Значение skip по-умолчанию - 0.
-        Значение delimiter по-умолчанию - 5.
+        и получить следующие limit дел.
         """
-        todoes_dict = self.dummyjson.get(delimiter=delimiter, skip=skip)
+        todoes_dict = self.dummyjson.get(query_params)
         return todoes_dict.get('todos')
 
     def id(self, event_id):
@@ -83,15 +82,16 @@ class Todo:
         return self.dummyjson.get(path=path)
 
     def random(self):
+        query_params = {}
         """
         random(self)
 
         Метод позволяет получить произвольное дело из списка
         """
         path = '/random'
-        return self.dummyjson.get(path=path)
+        return self.dummyjson.get(query_params, path=path)
 
-    def user(self, user_id, delimiter=0, skip=0):
+    def user(self, user_id, query_params):
         """
         user(self, user_id, delimiter=0, skip=0)
 
@@ -102,8 +102,7 @@ class Todo:
         пользователя
         """
         path = f'/user/{user_id}'
-        todoes_dict = self.dummyjson.get(path=path,
-                                         delimiter=delimiter, skip=skip)
+        todoes_dict = self.dummyjson.get(query_params, path=path)
         return todoes_dict.get('todos')
 
     def add(self, event, user_id, status=False):
