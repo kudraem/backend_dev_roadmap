@@ -28,30 +28,30 @@ class DummyJsonApi(requests.Session):
         self.headers = {'User-Agent': 'Python-Study-App/1.0.0',
                         'Content-Type': 'application/json'}
 
-    def get(self, path='/todos', delimiter=None, step=None):
+    def get(self, path='/', delimiter=None, step=None):
         params = {'limit': delimiter, 'skip': step}
         return catch_exception(super().get(self.domain + path,
                                            params=params,
                                            headers=self.headers))
 
-    def post(self, request_body, path='/todos'):
+    def post(self, request_body, path='/'):
         return catch_exception(super().post(self.domain + path,
                                             json=request_body,
                                             headers=self.headers))
 
-    def patch(self, request_body, path='/todos'):
+    def patch(self, request_body, path='/'):
         return catch_exception(super().patch(self.domain + path,
                                              json=request_body,
                                              headers=self.headers))
 
-    def delete(self, path='/todos'):
+    def delete(self, path='/'):
         return catch_exception(super().delete(self.domain + path,
                                               headers=self.headers))
 
 
 class Todo:
     def __init__(self):
-        self.dummyjson = DummyJsonApi('https://dummyjson.com')
+        self.dummyjson = DummyJsonApi('https://dummyjson.com/todos')
 
     def enlist(self, delimiter=5, step=0):
         """
@@ -65,8 +65,22 @@ class Todo:
         todoes_dict = self.dummyjson.get(delimiter=delimiter, step=step)
         return todoes_dict.get('todos')
 
+    def id(self, event_id):
+        """
+        id(self, event_id)
+
+        Метод позволяет получить из списка конкретное дело
+        с заданным пользователем event_id.
+        """
+        path = f'/{event_id}'
+        return self.dummyjson.get(path=path)
+
 
 new = Todo()
 response = new.enlist(10)
 assert response[1]['id'] == 2
+response = new.enlist(10, 5)
+assert response[6]['id'] == 12
+response = new.id(5)
+assert response['todo'] == "Solve a Rubik's cube"
 print('Tests passed')
