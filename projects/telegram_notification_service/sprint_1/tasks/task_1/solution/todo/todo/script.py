@@ -119,6 +119,21 @@ class Todo:
         }
         return self.dummyjson.post(path=path, request_body=request_body)
 
+    def update(self, task_id, status=True):
+        """
+        update(self, task_id, status=True)
+
+        Метод позволяет обновить статус дела по его id.
+        В качестве входных параметров требует:
+        1) task_id - id дела
+        2) status - статус завершенности дела (по-умолчанию - True)
+        """
+        path = f'/{task_id}'
+        request_body = {
+            'completed': status,
+        }
+        return self.dummyjson.patch(path=path, request_body=request_body)
+
 
 new = Todo()
 response = new.enlist(10)
@@ -133,4 +148,6 @@ response = new.user(5)
 assert response[0]['userId'] == 5
 response = new.add('Send another request to dummyjson.com', 31, False)
 assert response['id'] == 151
+response = new.update(1, False)
+assert response['completed'] is False
 print('Tests passed')
