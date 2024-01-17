@@ -134,6 +134,15 @@ class Todo:
         }
         return self.dummyjson.patch(path=path, request_body=request_body)
 
+    def remove(self, task_id):
+        """
+        remove(self, task_id)
+
+        Метод позволяет удалить дело по его task_id
+        """
+        path = f'/{task_id}'
+        return self.dummyjson.delete(path=path)
+
 
 new = Todo()
 response = new.enlist(10)
@@ -150,4 +159,6 @@ response = new.add('Send another request to dummyjson.com', 31, False)
 assert response['id'] == 151
 response = new.update(1, False)
 assert response['completed'] is False
+response = new.remove(1)
+assert response['isDeleted'] is True
 print('Tests passed')
