@@ -3,9 +3,9 @@ from size_checker.request_check_size import check_size, SizeCheckerException
 
 
 def test_size_checker():
-    assert check_size('https://api.github.com/') == '510'
-    assert check_size('https://dummyjson.com/todos') == '2471'
-    assert check_size('https://httpbin.org/get') == '308'
+    assert check_size('https://api.github.com/') == '510 B'
+    assert check_size('https://dummyjson.com/todos') == '2.4 KiB'
+    assert check_size('https://httpbin.org/get') == '308 B'
     print('It\'s ok, boss')
 
 
