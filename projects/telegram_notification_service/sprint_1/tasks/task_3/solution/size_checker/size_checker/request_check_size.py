@@ -9,21 +9,26 @@ class SizeCheckerException(BaseException):
         return self.message
 
 
-def check_size(url):
-    def size_converter(num):
-        if num >= 1048576:
-            size = round((num / 1048576), 1)
-            if size % 10 == 0:
-                return f'{int(size)} MiB'
-            return f'{size} MiB'
-        elif num >= 1024:
-            size = round((num / 1024), 1)
-            if size % 10 == 0:
-                return f'{int(size)} KiB'
-            return f'{size} KiB'
-        else:
-            return f'{int(num)} B'
+def size_converter(num):
+    prefixes = ['B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB']
+    recursive_counter = 0
 
+    def calculate_size(content_length):
+        nonlocal recursive_counter
+        bytes = content_length
+        if bytes < 1024:
+            return bytes
+        else:
+            recursive_counter += 1
+            return calculate_size(bytes / 1024)
+
+    size = round(calculate_size(num), 1)
+    if recursive_counter == 0:
+        size = int(size)
+    return f'{size} {prefixes[recursive_counter]}'
+
+
+def check_size(url):
     try:
         response = requests.head(url, timeout=5.0)
     except requests.TooManyRedirects:
@@ -35,3 +40,6 @@ def check_size(url):
     else:
         response_size = float(response.headers.get('Content-Length'))
         return size_converter(response_size)
+
+
+print(check_size('https://46af-79-101-225-134.ngrok-free.app/timeout_error'))
