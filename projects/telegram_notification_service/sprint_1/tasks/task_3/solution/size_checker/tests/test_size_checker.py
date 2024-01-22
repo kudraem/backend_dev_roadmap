@@ -1,5 +1,5 @@
 import pytest
-from size_checker.request_check_size import check_size, SizeCheckerException
+from size_checker.request_check_size import check_size, SizeCheckerException, size_converter
 
 
 def test_size_checker():
@@ -7,6 +7,15 @@ def test_size_checker():
     assert check_size('https://dummyjson.com/todos') == '2.4 KiB'
     assert check_size('https://httpbin.org/get') == '308 B'
     print('It\'s ok, boss')
+
+
+def test_size_converter():
+    assert size_converter(1048576) == '1.0 MiB'
+    assert size_converter(1024) == '1.0 KiB'
+    assert size_converter(512) == '512 B'
+    assert size_converter(1208925819614629174706176) == '1.0 YiB'
+    assert size_converter(0) == '0 B'
+    print('Sizes converted')
 
 
 def test_timeout():
