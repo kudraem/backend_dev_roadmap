@@ -10,7 +10,8 @@ class SizeCheckerException(BaseException):
 
 
 def size_converter(num):
-    prefixes = ['B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB']
+    prefixes = ['B', 'KiB', 'MiB', 'GiB', 'TiB',
+                'PiB', 'EiB', 'ZiB', 'YiB']
     recursive_counter = 0
 
     def calculate_size(content_length):
@@ -38,8 +39,9 @@ def check_size(url):
     except requests.ConnectionError:
         raise SizeCheckerException('Connection is lost, try again later.')
     else:
-        response_size = float(response.headers.get('Content-Length'))
-        return size_converter(response_size)
-
-
-print(check_size('https://46af-79-101-225-134.ngrok-free.app/timeout_error'))
+        try:
+            response_size = float(response.headers['Content-Length'])
+            return size_converter(response_size)
+        except KeyError:
+            raise SizeCheckerException('Request is successful, '
+                                       'but response is empty')
