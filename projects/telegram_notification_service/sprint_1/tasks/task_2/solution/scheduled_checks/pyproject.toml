@@ -11,6 +11,7 @@ requests = "^2.31.0"
 python-crontab = "^3.0.0"
 
 [tool.poetry.scripts]
+run_check = "scheduled_checks.scripts.scheduled_checks_launch_script:enable_scheduled_checks"
 make_schedule = "scheduled_checks.scripts.scheduler:add_to_schedule"
 
 [tool.poetry.group.dev.dependencies]
