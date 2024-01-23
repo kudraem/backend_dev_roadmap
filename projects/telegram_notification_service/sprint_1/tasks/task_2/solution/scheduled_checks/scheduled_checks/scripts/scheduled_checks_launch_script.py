@@ -1,22 +1,11 @@
+import scheduled_checks.scheduled_checks as s_c
 import sys
-from crontab import CronTab
-from scheduled_checks.scheduled_checks import write_check_results
-from getpass import getuser
 
 
-def enable_scheduled_checks():
-    with open(rf'{sys.argv[1]}', 'r') as input_file:
-        url_list = []
-        for line in input_file:
-            url_list.append(line.strip())
+def enable_scheduled_checks(path):
+    url_list = s_c.get_url_list_from_file(path)
+    check_result = s_c.check_urls(url_list)
+    s_c.write_check_results_to_file(check_result)
 
-    my_cron = CronTab(user=getuser())
-    job = my_cron.new(command=write_check_results(url_list))
-    job.minute.every(int(sys.argv[2]))
-    my_cron.write()
-    if int(sys.argv[2]) > 1:
-        minutes = 'minutes'
-    else:
-        minutes = 'minute'
-    print(f'Auto-checking of sites in {sys.argv[1]} enabled.\n'
-          f'Sites are being checked every {sys.argv[2]} {minutes}')
+
+enable_scheduled_checks(sys.argv[1])
