@@ -37,12 +37,11 @@ def check_accessibility(url):
 
 
 def write_check_results(url_list):
-    headers_template = ['Date and time', 'URL', 'Check result']
     url_status = {True: 'This site is OK', False: 'Resource is unavailable'}
-    with open(r'check_result.txt', 'a') as result:
+    with open(r'check_result.csv', 'a') as result:
         wrighter = csv.writer(result, delimiter=';')
-        wrighter.writerow(headers_template)
         for url in url_list:
             string_template = [datetime.now(), url,
                                url_status[check_accessibility(url)]]
             wrighter.writerow(string_template)
+        wrighter.writerow('\n')
