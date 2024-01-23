@@ -19,4 +19,4 @@ def enable_scheduled_checks():
     else:
         minutes = 'minute'
     print(f'Auto-checking of sites in {sys.argv[1]} enabled.\n'
-          f'Sites is being checked every {sys.argv[2]} {minutes}')
+          f'Sites are being checked every {sys.argv[2]} {minutes}')
