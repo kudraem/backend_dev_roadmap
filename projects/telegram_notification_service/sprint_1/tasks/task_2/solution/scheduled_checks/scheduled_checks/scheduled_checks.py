@@ -13,21 +13,11 @@ class ScheduledCheckerException(BaseException):
 
 def check_accessibility(url):
     try:
-        response = requests.head(url, timeout=5.0, allow_redirects=True)
-
-        """
-        except requests.TooManyRedirects:
-            raise ScheduledCheckerException('Sorry, too many redirects')
-    
-        # На момент написания кода я пока не до конца понимаю,
-        # должна ли функция идти по редиректам, или же,
-        # получив первый код 3**, она должна сообщать, что ресурс недоступен.
-        # Поэтому возможность обработки такого исключения предусмотрена, 
-        # но не реализована.
-        # Еще интерпретатор ругается, что он ожидал блок except или finally,
-        # а не вот это все, поэтому после раскомментирования нужно подвинуть
-        # первый блок except на четыре пробела влево
-        """
+        session = requests.Session()
+        session.max_redirects = 5
+        response = session.head(url, timeout=5.0, allow_redirects=True)
+    except requests.TooManyRedirects:
+        raise ScheduledCheckerException('Sorry, too many redirects')
     except requests.Timeout:
         raise ScheduledCheckerException('Timeout error. Try again later.')
     except requests.ConnectionError:
@@ -36,12 +26,52 @@ def check_accessibility(url):
         return response.status_code == 200
 
 
-def write_check_results(url_list):
+def get_url_list_from_file(path):
+    with open(rf'{path}', 'r') as input_file:
+        url_list = []
+        for line in input_file:
+            url_list.append(line.strip())
+    return url_list
+
+
+def get_url_list_from_stdin():
+    url_list = []
+    url = input()
+    while url:
+        url_list.append(url)
+        url = input()
+    return url_list
+
+
+def check_urls(url_list):
+    checks_list = []
+    for url in url_list:
+        try:
+            url_status_200 = check_accessibility(url)
+        except ScheduledCheckerException:
+            url_status_200 = False
+        check_time = datetime.now()
+        url_check_result = [str(check_time), url, url_status_200]
+        checks_list.append(url_check_result)
+    return checks_list
+
+
+def write_check_results_to_file(checks_result_list):
     url_status = {True: 'This site is OK', False: 'Resource is unavailable'}
     with open(r'check_result.csv', 'a') as result:
         wrighter = csv.writer(result, delimiter=';')
-        for url in url_list:
-            string_template = [datetime.now(), url,
-                               url_status[check_accessibility(url)]]
+        for url_result in checks_result_list:
+            string_template = (url_result[0:2] +
+                               [url_status[url_result[2]]])
             wrighter.writerow(string_template)
-        wrighter.writerow('\n')
+        result.write('\n')
+
+
+def read_check_results_from_file(path):
+    test_file_result = []
+    with open(rf'{path}', 'r') as result:
+        reader = csv.reader(result, delimiter=';')
+        for row in reader:
+            if row:
+                test_file_result.append(row)
+    return test_file_result
