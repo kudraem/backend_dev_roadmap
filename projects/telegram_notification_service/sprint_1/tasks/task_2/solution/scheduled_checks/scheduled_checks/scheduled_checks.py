@@ -27,11 +27,16 @@ def check_accessibility(url):
 
 
 def get_url_list_from_file(path):
-    with open(rf'{path}', 'r') as input_file:
-        url_list = []
-        for line in input_file:
-            url_list.append(line.strip())
-    return url_list
+    try:
+        with open(rf'{path}', 'r') as input_file:
+            url_list = []
+            for line in input_file:
+                url_list.append(line.strip())
+        return url_list
+    except PermissionError:
+        raise ScheduledCheckerException('Access denied')
+    except FileNotFoundError:
+        raise ScheduledCheckerException('File not found')
 
 
 def get_url_list_from_stdin():
@@ -56,9 +61,9 @@ def check_urls(url_list):
     return checks_list
 
 
-def write_check_results_to_file(checks_result_list):
+def write_check_results_to_file(checks_result_list, file_name='check_result.csv'):
     url_status = {True: 'This site is OK', False: 'Resource is unavailable'}
-    with open(r'check_result.csv', 'a') as result:
+    with open(rf'{file_name}', 'a') as result:
         wrighter = csv.writer(result, delimiter=';')
         for url_result in checks_result_list:
             string_template = (url_result[0:2] +

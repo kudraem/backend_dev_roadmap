@@ -18,7 +18,13 @@ def test_read_check_results():
     assert check_result[0][2] is True
     assert check_result[2][1] == 'https://dummyjson.com/todoss'
     assert check_result[2][2] is False
-    print('Tests passed. Check\'s results are collected')
+    with pytest.raises(s_c.ScheduledCheckerException) as err:
+        s_c.get_url_list_from_file('does_not_exist')
+    assert str(err.value) == 'File not found'
+    with pytest.raises(s_c.ScheduledCheckerException) as err:
+        s_c.get_url_list_from_file('../forbidden_list')
+    assert str(err.value) == 'Access denied'
+    print('Tests passed. Check\'s results are collected correctly')
 
 
 def test_write_read_results():

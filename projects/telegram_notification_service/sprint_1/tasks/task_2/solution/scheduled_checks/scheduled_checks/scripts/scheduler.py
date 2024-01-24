@@ -7,7 +7,7 @@ import os
 def add_to_schedule():
     my_cron = CronTab(user=getuser())
     job = my_cron.new(command=f'cd {os.getcwd()}/ && '
-                              f'/home/nikita/.local/bin/poetry run run_check url_list '
+                              f'/home/{os.getcwd()}/.local/bin/poetry run run_check url_list '
                               f'> {os.getcwd()}/cron_debug.log 2>&1')
     job.minute.every(sys.argv[2])
     my_cron.write()
