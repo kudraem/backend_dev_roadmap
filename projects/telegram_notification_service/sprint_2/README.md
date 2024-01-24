@@ -28,6 +28,9 @@ HTTP запросы с помощью Python, перейдем к этапу р�
 1. в случае необходимости, [updates получать](https://core.telegram.org/bots/api#getting-updates)
 с помощью [getUpdates()](https://core.telegram.org/bots/api#getupdates)
 
+В качестве репозитория для проекта используем [этот репозиторий](https://github.com/kudraem/telegram_msg_sender)
+и работаем через Pull Requests.
+
 ### Источники
 #### Основные
 1. [Telegram Bot API Reference](https://core.telegram.org/bots/api)
