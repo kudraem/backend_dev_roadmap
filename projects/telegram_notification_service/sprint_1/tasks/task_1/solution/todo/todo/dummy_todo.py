@@ -1,4 +1,5 @@
 import requests
+from urllib.parse import urljoin
 
 
 class DummyJsonException(BaseException):
@@ -9,59 +10,54 @@ class DummyJsonException(BaseException):
         return self.message
 
 
-def make_request(method, path, **kwargs):
-    try:
-        response = requests.request(method, path, **kwargs)
-        response.raise_for_status()
-    except requests.TooManyRedirects:
-        raise DummyJsonException('Sorry, too many redirects')
-    except requests.HTTPError as err:
-        raise DummyJsonException(f'HTTPError is occured, and it is {err}')
-    except requests.Timeout:
-        raise DummyJsonException('Timeout error. Try again later.')
-    except requests.ConnectionError:
-        raise DummyJsonException('Connection is lost, try again later.')
-    else:
-        try:
-            return response.json()
-        except requests.JSONDecodeError:
-            raise DummyJsonException('Incoming JSON is invalid')
-
-
 class DummyJsonApi(requests.Session):
     def __init__(self, domain):
         super().__init__()
         self.max_redirects = 5
-        self.domain = domain
+        self.domain = f'{domain}/'
         self.headers = {'User-Agent': 'Python-Study-App/1.0.0',
                         'Content-Type': 'application/json'}
         self.timeout = 5.0
 
+    def make_request(self, method, path, **kwargs):
+        try:
+            response = self.request(method, path, **kwargs)
+            response.raise_for_status()
+            return response.json()
+        except requests.JSONDecodeError:
+            raise DummyJsonException('Incoming JSON is invalid')
+        except requests.TooManyRedirects:
+            raise DummyJsonException('Sorry, too many redirects')
+        except requests.HTTPError as err:
+            raise DummyJsonException(f'HTTPError is occured, and it is {err}')
+        except requests.Timeout:
+            raise DummyJsonException('Timeout error. Try again later.')
+        except requests.ConnectionError:
+            raise DummyJsonException('Connection is lost, try again later.')
+
+
     def get(self, query_params=None, path=''):
-        return make_request('get', (self.domain + path),
-                            params=query_params, headers=self.headers,
-                            timeout=self.timeout)
+        return self.make_request('get', urljoin(self.domain, path),
+                                 params=query_params, timeout=self.timeout)
 
     def post(self, request_body, path=''):
-        return make_request('post', (self.domain + path),
-                            json=request_body,
-                            headers=self.headers, timeout=self.timeout)
+        return self.make_request('post', urljoin(self.domain, path),
+                                 json=request_body, timeout=self.timeout)
 
     def patch(self, request_body, path=''):
-        return make_request('patch', (self.domain + path),
-                            json=request_body,
-                            headers=self.headers, timeout=self.timeout)
+        return self.make_request('patch', urljoin(self.domain, path),
+                                 json=request_body, timeout=self.timeout)
 
     def delete(self, path=''):
-        return make_request('delete', (self.domain + path),
-                            headers=self.headers, timeout=self.timeout)
+        return self.make_request('delete', urljoin(self.domain, path),
+                                 timeout=self.timeout)
 
 
 class Todo:
     def __init__(self, domain):
         self.dummyjson = DummyJsonApi(domain)
 
-    def enlist(self, query_params):
+    def enlist(self, query_params=None):
         """
         enlist(self, query_params)
 
@@ -78,7 +74,7 @@ class Todo:
         Метод позволяет получить из списка конкретное дело
         с заданным пользователем event_id.
         """
-        path = f'/{event_id}'
+        path = f'{event_id}'
         return self.dummyjson.get(path=path)
 
     def random(self):
@@ -88,10 +84,10 @@ class Todo:
 
         Метод позволяет получить произвольное дело из списка
         """
-        path = '/random'
+        path = 'random'
         return self.dummyjson.get(query_params, path=path)
 
-    def user(self, user_id, query_params):
+    def user(self, user_id, query_params=None):
         """
         user(self, user_id, delimiter=0, skip=0)
 
@@ -101,7 +97,7 @@ class Todo:
         (параметр delimiter), а также пропускать первые skip дел
         пользователя
         """
-        path = f'/user/{user_id}'
+        path = f'user/{user_id}'
         todoes_dict = self.dummyjson.get(query_params, path=path)
         return todoes_dict.get('todos')
 
@@ -117,7 +113,7 @@ class Todo:
         3) user_id - ID пользователя
         Значение status по умолчанию: False
         """
-        path = '/add'
+        path = 'add'
         request_body = {
             'todo': event,
             'completed': status,
@@ -134,7 +130,7 @@ class Todo:
         1) task_id - id дела
         2) status - статус завершенности дела (по-умолчанию - True)
         """
-        path = f'/{task_id}'
+        path = f'{task_id}'
         request_body = {
             'completed': status,
         }
@@ -146,5 +142,5 @@ class Todo:
 
         Метод позволяет удалить дело по его task_id
         """
-        path = f'/{task_id}'
+        path = f'{task_id}'
         return self.dummyjson.delete(path=path)

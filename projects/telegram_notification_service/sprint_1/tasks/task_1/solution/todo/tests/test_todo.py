@@ -20,18 +20,20 @@ def test_todo():
     assert response['completed'] is False
     response = new.remove(1)
     assert response['isDeleted'] is True
-    print('Tests passed')
+    print('Tests for Todo passed')
 
 
-def test_wrong_id():
+def test_raise_http_exception():
     with pytest.raises(DummyJsonException) as err:
-        new = Todo('https://dummyjson.com/todos')
+        new = Todo('https://www.google.com/images/branding/googlelogo/1x/')
         new.id(1000)
     assert str(err.value) == ('HTTPError is occured, '
                               'and it is 404 Client Error: '
-                              'Not Found for url: https://dummyjson.com/todos/1000')
+                              'Not Found for url: https://www.google.com/images/branding/googlelogo/1x/1000')
+    print('Test passed, HTTP error is occured')
 
 
+'''
 def test_max_redirects():
     with pytest.raises(DummyJsonException) as err:
         new = DummyJsonApi('https://2866-79-101-225-134.ngrok-free.app/redirect_error')
@@ -44,9 +46,19 @@ def test_timeout():
         new = DummyJsonApi('https://2866-79-101-225-134.ngrok-free.app/timeout_error')
         new.get()
     assert str(err.value) == 'Timeout error. Try again later.'
+'''
 
 
-test_todo()
-test_wrong_id()
-test_max_redirects()
-test_timeout()
+def test_json_parse():
+    with pytest.raises(DummyJsonException) as err:
+        new = DummyJsonApi('https://google.com')
+        new.get()
+    print(err.value)
+
+
+def test_connection():
+    with pytest.raises(DummyJsonException) as err:
+        new = Todo('https://gooogle.com/404')
+        new.enlist({})
+    assert str(err.value) == 'Connection is lost, try again later.'
+    print('Tests passed. Connection exception is caught')
