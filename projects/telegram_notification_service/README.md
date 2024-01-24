@@ -86,6 +86,9 @@ HTTP запросов инициировать отправку сообщени
 1. [Спринт 1](https://github.com/kudraem/backend_dev_roadmap/tree/main/projects/telegram_notification_service/sprint_1)
     1. Интернет, HTTP, API, requests
     1. Python окружение: пакеты, индексы и pip, виртуальные окружения, Flake8
+1. [Спринт 2](https://github.com/kudraem/backend_dev_roadmap/tree/main/projects/telegram_notification_service/sprint_2)
+    1. Отправка текстовых сообщений в Telegram с помощью Telegram Bot API
+    1. Создание утилиты командной строки с помощью модуля [argparse](https://docs.python.org/3/library/argparse.html)
 
 ### B24 Event Handler *
 Это дополнительная задача, которую можно реализовать по желанию. Эталонная
